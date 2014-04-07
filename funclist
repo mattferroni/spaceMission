@@ -1,0 +1,10 @@
+_updateAsteroidsSpeed: CODE, 282 0 1
+_updatePoints: CODE, 284 0 1
+_endMission: CODE, 285 0 1
+_updateSpace: CODE, 283 0 1
+_main: CODE, 109 0 62
+_initCountDown: CODE, 254 0 15
+_isr: CODE, 37 0 72
+_updateCountDown: CODE, 215 0 39
+_sleep: CODE, 171 0 44
+Total: 236
