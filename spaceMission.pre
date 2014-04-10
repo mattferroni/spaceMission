@@ -584,8 +584,8 @@ unsigned char digit1 = 0;
 
 unsigned int points = 0;
 
-char line0[16];
-char line1[16];
+char line0[16]="----------------";
+char line1[16]="----------------";
 
 unsigned char indexLines;
 
@@ -603,7 +603,7 @@ status |= 0x8;
 if(digit0 == 0){
 if(digit1 == 0){
 
-status |= 0x1;
+
 }else{
 
 digit1--;
@@ -618,6 +618,10 @@ divider++;
 GIE=1;
 }
 
+
+void sleep(){
+for(int i = 0; i < 256; i++);
+}
 
 
 
@@ -638,33 +642,42 @@ void displayPoints(){
 void displaySpace(){
 unsigned char index;
 
-lcd_goto(0x0);
-for (index = 0; index < 16; ++index){
-lcd_write(line0[index]);
-}
-for (index = 0; index < 16; ++index){
-lcd_write(line1[index]);
-}
+lcd_clear();
+lcd_puts(line0);
+lcd_puts(line1);
 
+# 106
 }
 
 unsigned char generateAsteroid(){
 return 1;
 }
 
+void checkCollision(){
+
+
+
+if((status & 0x4) && line1[indexLines] == 'B'){
+
+}
+if(!(status & 0x4) && line0[indexLines] == 'B'){
+
+}
+}
+
 
 
 void updateSpace(){
 
-# 114
-if(line0[indexLines] == 0x23 || line1[indexLines] == 0x23){
+# 132
+if(line0[indexLines] == 'B' || line1[indexLines] == 'B'){
 ++points;
 }
 
 
 
 
-unsigned char prevIndex 0;
+unsigned char prevIndex = 0;
 
 if (indexLines !=0){
 prevIndex = indexLines-1;
@@ -673,24 +686,24 @@ prevIndex = 15;
 }
 
 if (generateAsteroid()){
-if(line1[prevIndex] != 0x23){
-line0[indexLines] = 0x23;
+if(line1[prevIndex] != 'B'){
+line0[indexLines] = 'B';
 } else {
-line0[indexLines] = 0x20;
+line0[indexLines] = 'A';
 }
-line1[indexLines] = 0x20;
+line1[indexLines] = 'A';
 
 }else if(generateAsteroid()){
-if(line0[prevIndex] != 0x23){
-line1[indexLines] = 0x23;
+if(line0[prevIndex] != 'B'){
+line1[indexLines] = 'B';
 } else {
-line1[indexLines] = 0x20;
+line1[indexLines] = 'A';
 }
-line0[indexLines] = 0x20;
+line0[indexLines] = 'A';
 } else {
 
-line0[indexLines] = 0x20;
-line1[indexLines] = 0x20;
+line0[indexLines] = 'A';
+line1[indexLines] = 'A';
 }
 
 
@@ -706,17 +719,6 @@ checkCollision();
 
 }
 
-void checkCollision(){
-
-
-
-if((status & 0x4) && line1[indexLines] == 0x23){
-status |= 0x2;
-}
-if(!(status & 0x4) && line0[indexLines] == 0x23){
-status |= 0x2;
-}
-}
 
 
 void updatePoints(){
@@ -737,9 +739,6 @@ sleep();
 RA1=0;
 }
 
-void sleep(){
-for(int i = 0; i < 256; i++);
-}
 void initCountDown(){
 
 T0CS=0;
@@ -762,11 +761,17 @@ void endMission(){
 
 int main(){
 
-ANSEL=0x00;
-ANSELH=0x00;
+INTCON = 0;
+TRISB = 0b11000000;
+ANSEL = 0b00000100;
+ANSELH = 0x00;
+
 
 TRISD=0b00000000;
 
+lcd_init();
+lcd_clear();
+lcd_puts("Welcome");
 initCountDown();
 
 GIE=1;

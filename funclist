@@ -1,10 +1,16 @@
-_updateAsteroidsSpeed: CODE, 282 0 1
-_updatePoints: CODE, 284 0 1
-_endMission: CODE, 285 0 1
-_updateSpace: CODE, 283 0 1
-_main: CODE, 109 0 62
-_initCountDown: CODE, 254 0 15
-_isr: CODE, 37 0 72
-_updateCountDown: CODE, 215 0 39
-_sleep: CODE, 171 0 44
-Total: 236
+_updateAsteroidsSpeed: CODE, 720 0 1
+_lcd_puts: CODE, 528 0 43
+_endMission: CODE, 717 0 1
+_updateSpace: CODE, 55 0 182
+_displaySpace: CODE, 603 0 28
+_main: CODE, 237 0 98
+_displayPoints: CODE, 718 0 1
+_checkCollision: CODE, 709 0 5
+_displayCountDown: CODE, 719 0 1
+_initCountDown: CODE, 694 0 15
+_lcd_clear: CODE, 656 0 21
+_isr: CODE, 422 0 60
+_generateAsteroid: CODE, 714 0 3
+_lcd_write: CODE, 482 0 46
+_lcd_init: CODE, 335 0 87
+Total: 592

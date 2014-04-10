@@ -1,7 +1,7 @@
 
 
 HI-TECH Software PIC Macro Assembler V9.80 build 6738 
-                                                                                                           Fri Mar 21 11:03:43 2014
+                                                                                                           Thu Apr 10 15:33:03 2014
 
 
      1                           
@@ -14,8 +14,8 @@ HI-TECH Software PIC Macro Assembler V9.80 build 6738
      8                           	; Compiler options:
      9                           	;
     10                           	; -oSpaceMission.cof -mSpaceMission.map --summary=default \
-    11                           	; --output=default spaceMission.p1 --chip=16F887 -P --runtime=default \
-    12                           	; --opt=default -D__DEBUG=1 -g --asmlist \
+    11                           	; --output=default spaceMission.p1 lcd.p1 --chip=16F887 -P \
+    12                           	; --runtime=default --opt=default -D__DEBUG=1 -g --asmlist \
     13                           	; --errformat=Error   [%n] %f; %l.%c %s --msgformat=Advisory[%n] %s \
     14                           	; --warnformat=Warning [%n] %f; %l.%c %s
     15                           	;
@@ -72,12 +72,12 @@ HI-TECH Software PIC Macro Assembler V9.80 build 6738
     66  0012                     _exit
     67                           	psect	end_init
     68                           	global start_initialization
-    69  0012  120A  118A  290D   	ljmp start_initialization	;jump to C runtime clear & initialization
+    69  0012  120A  118A  2A77   	ljmp start_initialization	;jump to C runtime clear & initialization
 
 
 HI-TECH Software PICC Macro Assembler V9.80 build 6738 
-Symbol Table                                                                                               Fri Mar 21 11:03:43 2014
+Symbol Table                                                                                               Thu Apr 10 15:33:03 2014
 
-               _main 006D                 _exit 0012                 start 0012  start_initialization 010D  
+               _main 00ED                 _exit 0012                 start 0012  start_initialization 0277  
            intlevel0 0000             intlevel1 0000             intlevel2 0000             intlevel3 0000  
            intlevel4 0000             intlevel5 0000             reset_vec 0000  

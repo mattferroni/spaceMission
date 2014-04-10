@@ -2,7 +2,7 @@ HI-TECH Software C Compiler
 
 Linker command line:
 
---edf=C:\Program Files\HI-TECH Software\PICC\9.80\dat\en_msgs.txt -cs \
+--edf=C:\Program Files (x86)\HI-TECH Software\PICC\9.80\dat\en_msgs.txt -cs \
   -h+SpaceMission.sym -z -Q16F887 -ol.obj -MSpaceMission.map -E1 \
   -ACONST=00h-0FFhx32 -ACODE=00h-07FFhx4 -ASTRCODE=00h-01FFFh \
   -AENTRY=00h-0FFhx32 -ASTRING=00h-0FFhx32 -ABANK0=020h-06Fh \
@@ -28,21 +28,30 @@ startup.obj     end_init                             12       12        3       
 SpaceMission.obj
                 intentry                              4        4        E        8       0
                 config                             2007     2007        1     400E       0
-                text264                              25       25       48       4A       0
-                text263                              FE       FE        F       4A       0
-                text262                             11D      11D        1       4A       0
-                text261                             11C      11C        1       4A       0
-                text260                             11B      11B        1       4A       0
-                text259                             11A      11A        1       4A       0
-                text258                              AB       AB       2C       4A       0
-                text257                              D7       D7       27       4A       0
-                maintext                             6D       6D       3E       4A       0
-                cstackBANK0                          22       22        2       20       1
-                cstackCOMMON                         77       77        5       70       1
-                bssBANK0                             20       20        2       20       1
-                bssCOMMON                            70       70        7       70       1
-                cinit                               10D      10D        D       4A       0
-                strings                              15       15       10       2A       0
+                text448                             1A6      1A6       3C       6E       0
+                text447                             2D0      2D0        1       6E       0
+                text446                             2CF      2CF        1       6E       0
+                text445                             2CE      2CE        1       6E       0
+                text444                             2CA      2CA        3       6E       0
+                text443                             2C5      2C5        5       6E       0
+                text442                             2B6      2B6        F       6E       0
+                text441                             2CD      2CD        1       6E       0
+                text440                              37       37       B6       6E       0
+                text439                             1E2      1E2       2E       6E       0
+                text438                             290      290       15       6E       0
+                text437                             210      210       2B       6E       0
+                text436                             25B      25B       1C       6E       0
+                text435                             14F      14F       57       6E       0
+                maintext                             ED       ED       62       6E       0
+                cstackBANK0                          40       40        9       20       1
+                cstackCOMMON                         75       75        5       70       1
+                inittext                            2A5      2A5       11       6E       0
+                dataBANK0                            20       20       20       20       1
+                bssBANK0                             49       49        2       20       1
+                bssCOMMON                            70       70        5       70       1
+                cinit                               277      277       19       6E       0
+                strings                              15       15       22       2A       0
+                idataBANK0                          23B      23B       20       6E       0
 
 TOTAL           Name                               Link     Load   Length     Space
         CLASS   CONST          
@@ -51,27 +60,36 @@ TOTAL           Name                               Link     Load   Length     Sp
                 end_init                             12       12        3         0
                 intentry                              4        4        E         0
                 reset_vec                             0        0        3         0
-                text264                              25       25       48         0
-                text263                              FE       FE        F         0
-                text262                             11D      11D        1         0
-                text261                             11C      11C        1         0
-                text260                             11B      11B        1         0
-                text259                             11A      11A        1         0
-                text258                              AB       AB       2C         0
-                text257                              D7       D7       27         0
-                maintext                             6D       6D       3E         0
-                cinit                               10D      10D        D         0
+                text448                             1A6      1A6       3C         0
+                text447                             2D0      2D0        1         0
+                text446                             2CF      2CF        1         0
+                text445                             2CE      2CE        1         0
+                text444                             2CA      2CA        3         0
+                text443                             2C5      2C5        5         0
+                text442                             2B6      2B6        F         0
+                text441                             2CD      2CD        1         0
+                text440                              37       37       B6         0
+                text439                             1E2      1E2       2E         0
+                text438                             290      290       15         0
+                text437                             210      210       2B         0
+                text436                             25B      25B       1C         0
+                text435                             14F      14F       57         0
+                maintext                             ED       ED       62         0
+                inittext                            2A5      2A5       11         0
+                cinit                               277      277       19         0
+                idataBANK0                          23B      23B       20         0
 
         CLASS   STRCODE        
 
         CLASS   ENTRY          
 
         CLASS   STRING         
-                strings                              15       15       10         0
+                strings                              15       15       22         0
 
         CLASS   BANK0          
-                cstackBANK0                          22       22        2         1
-                bssBANK0                             20       20        2         1
+                cstackBANK0                          40       40        9         1
+                dataBANK0                            20       20       20         1
+                bssBANK0                             49       49        2         1
 
         CLASS   BANK1          
 
@@ -85,8 +103,8 @@ TOTAL           Name                               Link     Load   Length     Sp
                 abs_s1                               7E       7E        2         1
 
         CLASS   COMMON         
-                cstackCOMMON                         77       77        5         1
-                bssCOMMON                            70       70        7         1
+                cstackCOMMON                         75       75        5         1
+                bssCOMMON                            70       70        5         1
 
         CLASS   SFR0           
 
@@ -109,31 +127,31 @@ SEGMENTS        Name                           Load    Length   Top    Selector 
 
                 reset_vec                      000000  000003  000003         0       0  CODE        2
                 intentry                       000004  000011  000015         8       0  CODE        2
-                bssBANK0                       000020  000004  000024        20       1  BANK0       1
-                strings                        000015  000010  000025        2A       0  STRING      2
-                text264                        000025  0000F9  00011E        4A       0  CODE        2
-                bssCOMMON                      000070  00000C  00007C        70       1  COMMON      1
+                dataBANK0                      000020  00002B  00004B        20       1  BANK0       1
+                strings                        000015  000022  000037        2A       0  STRING      2
+                text440                        000037  00029A  0002D1        6E       0  CODE        2
+                bssCOMMON                      000070  00000A  00007A        70       1  COMMON      1
                 config                         002007  000001  002008      400E       0  CONFIG      2
 
 
 UNUSED ADDRESS RANGES
 
         Name                Unused          Largest block    Delta
-        BANK0            0024-006F             4C           1
+        BANK0            004B-006F             25           1
         BANK1            00A0-00EF             50           1
         BANK2            0110-016F             60           1
         BANK3            0190-01EF             60           1
         CODE             0003-0003              1           2
-                         011E-1FFF            800
-        COMMON           007C-007D              2           1
+                         02D1-1FFF            800
+        COMMON           007A-007D              4           1
         CONFIG           2008-2008              1           2
         CONST            0003-0003              1           2
-                         011E-1FFF            100
+                         02D1-1FFF            100
         EEDATA           2100-21FF            100           2
         ENTRY            0003-0003              1           2
-                         011E-1FFF            100
+                         02D1-1FFF            100
         IDLOC            2000-2003              4           2
-        RAM              0024-006F             4C           1
+        RAM              004B-006F             25           1
                          00A0-00EF             50
                          0110-016F             60
                          0190-01EF             60
@@ -142,33 +160,47 @@ UNUSED ADDRESS RANGES
         SFR2             0100-010F             10           1
         SFR3             0180-018F             10           1
         STRCODE          0003-0003              1           2
-                         011E-1FFF           1EE2
+                         02D1-1FFF           1D2F
         STRING           0003-0003              1           2
-                         011E-1FFF            100
+                         02D1-1FFF            100
 
                                   Symbol Table
 
-??_endMission                  cstackBANK0  0022
-??_initCountDown               cstackBANK0  0022
-??_isr                         cstackCOMMON 0077
-??_main                        cstackBANK0  0024
-??_sleep                       cstackBANK0  0022
-??_updateAsteroidsSpeed        cstackBANK0  0022
-??_updateCountDown             cstackBANK0  0024
-??_updatePoints                cstackBANK0  0022
-??_updateSpace                 cstackBANK0  0022
-?_endMission                   cstackCOMMON 0077
-?_initCountDown                cstackCOMMON 0077
-?_isr                          cstackCOMMON 0077
-?_main                         cstackCOMMON 0077
-?_sleep                        cstackCOMMON 0077
-?_updateAsteroidsSpeed         cstackCOMMON 0077
-?_updateCountDown              cstackCOMMON 0077
-?_updatePoints                 cstackCOMMON 0077
-?_updateSpace                  cstackCOMMON 0077
+??_checkCollision              cstackBANK0  0040
+??_displayCountDown            cstackBANK0  0040
+??_displayPoints               cstackBANK0  0040
+??_displaySpace                cstackBANK0  0045
+??_endMission                  cstackBANK0  0040
+??_generateAsteroid            cstackBANK0  0040
+??_initCountDown               cstackBANK0  0040
+??_isr                         cstackCOMMON 0075
+??_lcd_clear                   cstackBANK0  0043
+??_lcd_init                    cstackBANK0  0045
+??_lcd_puts                    cstackBANK0  0045
+??_lcd_write                   cstackBANK0  0040
+??_main                        cstackBANK0  0048
+??_updateAsteroidsSpeed        cstackBANK0  0040
+??_updateSpace                 cstackBANK0  0040
+?_checkCollision               cstackCOMMON 0075
+?_displayCountDown             cstackCOMMON 0075
+?_displayPoints                cstackCOMMON 0075
+?_displaySpace                 cstackCOMMON 0075
+?_endMission                   cstackCOMMON 0075
+?_generateAsteroid             cstackCOMMON 0075
+?_initCountDown                cstackCOMMON 0075
+?_isr                          cstackCOMMON 0075
+?_lcd_clear                    cstackCOMMON 0075
+?_lcd_init                     cstackCOMMON 0075
+?_lcd_puts                     cstackBANK0  0043
+?_lcd_write                    cstackCOMMON 0075
+?_main                         cstackCOMMON 0075
+?_updateAsteroidsSpeed         cstackCOMMON 0075
+?_updateSpace                  cstackCOMMON 0075
 _ANSEL                         (abs)        0188
 _ANSELH                        (abs)        0189
 _GIE                           (abs)        005F
+_INTCON                        (abs)        000B
+_PORTB                         (abs)        0006
 _PORTD                         (abs)        0008
 _PS0                           (abs)        0408
 _PS1                           (abs)        0409
@@ -176,9 +208,12 @@ _PS2                           (abs)        040A
 _PSA                           (abs)        040B
 _RA0                           (abs)        0028
 _RA1                           (abs)        0029
+_RB4                           (abs)        0034
+_RB5                           (abs)        0035
 _T0CS                          (abs)        040D
 _T0IE                          (abs)        005D
 _T0IF                          (abs)        005A
+_TRISB                         (abs)        0086
 _TRISD                         (abs)        0088
 __Habs1                        abs1         0000
 __Hbank0                       bank0        0000
@@ -194,11 +229,14 @@ __Hcommon                      common       0000
 __Hconfig                      config       2008
 __HcstackBANK0                 cstackBANK0  0000
 __HcstackCOMMON                cstackCOMMON 0000
+__HdataBANK0                   dataBANK0    0000
 __Heeprom_data                 eeprom_data  0000
 __Hend_init                    end_init     0015
 __Hfunctab                     functab      0000
+__HidataBANK0                  idataBANK0   0000
 __Hidloc                       idloc        0000
 __Hinit                        init         0012
+__Hinittext                    inittext     0000
 __Hintentry                    intentry     0012
 __Hmaintext                    maintext     0000
 __Hpowerup                     powerup      0000
@@ -224,11 +262,14 @@ __Lcommon                      common       0000
 __Lconfig                      config       2007
 __LcstackBANK0                 cstackBANK0  0000
 __LcstackCOMMON                cstackCOMMON 0000
+__LdataBANK0                   dataBANK0    0000
 __Leeprom_data                 eeprom_data  0000
 __Lend_init                    end_init     0012
 __Lfunctab                     functab      0000
+__LidataBANK0                  idataBANK0   0000
 __Lidloc                       idloc        0000
 __Linit                        init         0012
+__Linittext                    inittext     0000
 __Lintentry                    intentry     0004
 __Lmaintext                    maintext     0000
 __Lpowerup                     powerup      0000
@@ -241,60 +282,91 @@ __Lsfr3                        sfr3         0000
 __Lstrings                     strings      0000
 __Ltext                        text         0000
 __S0                           (abs)        2008
-__S1                           (abs)        007C
+__S1                           (abs)        007A
 __S2                           (abs)        0000
-__end_of_endMission            text262      011E
-__end_of_initCountDown         text263      010D
-__end_of_isr                   text264      006D
-__end_of_main                  maintext     00AB
-__end_of_sleep                 text258      00D7
-__end_of_updateAsteroidsSpeed  text259      011B
-__end_of_updateCountDown       text257      00FE
-__end_of_updatePoints          text261      011D
-__end_of_updateSpace           text260      011C
-__pbssBANK0                    bssBANK0     0020
+__end_of_checkCollision        text443      02CA
+__end_of_displayCountDown      text446      02D0
+__end_of_displayPoints         text445      02CF
+__end_of_displaySpace          text436      0277
+__end_of_endMission            text441      02CE
+__end_of_generateAsteroid      text444      02CD
+__end_of_initCountDown         text442      02C5
+__end_of_isr                   text448      01E2
+__end_of_lcd_clear             text438      02A5
+__end_of_lcd_init              text435      01A6
+__end_of_lcd_puts              text437      023B
+__end_of_lcd_write             text439      0210
+__end_of_main                  maintext     014F
+__end_of_updateAsteroidsSpeed  text447      02D1
+__end_of_updateSpace           text440      00ED
+__pbssBANK0                    bssBANK0     0049
 __pbssCOMMON                   bssCOMMON    0070
-__pcstackBANK0                 cstackBANK0  0022
-__pcstackCOMMON                cstackCOMMON 0077
+__pcstackBANK0                 cstackBANK0  0040
+__pcstackCOMMON                cstackCOMMON 0075
+__pdataBANK0                   dataBANK0    0020
+__pidataBANK0                  idataBANK0   023B
 __pintentry                    intentry     0004
-__pmaintext                    maintext     006D
+__pmaintext                    maintext     00ED
 __pstrings                     strings      0015
-__ptext257                     text257      00D7
-__ptext258                     text258      00AB
-__ptext259                     text259      011A
-__ptext260                     text260      011B
-__ptext261                     text261      011C
-__ptext262                     text262      011D
-__ptext263                     text263      00FE
-__ptext264                     text264      0025
-__ptext265                     text265      0000
+__ptext435                     text435      014F
+__ptext436                     text436      025B
+__ptext437                     text437      0210
+__ptext438                     text438      0290
+__ptext439                     text439      01E2
+__ptext440                     text440      0037
+__ptext441                     text441      02CD
+__ptext442                     text442      02B6
+__ptext443                     text443      02C5
+__ptext444                     text444      02CA
+__ptext445                     text445      02CE
+__ptext446                     text446      02CF
+__ptext447                     text447      02D0
+__ptext448                     text448      01A6
+__ptext449                     text449      0000
+__size_of_checkCollision       (abs)        0000
+__size_of_displayCountDown     (abs)        0000
+__size_of_displayPoints        (abs)        0000
+__size_of_displaySpace         (abs)        0000
 __size_of_endMission           (abs)        0000
+__size_of_generateAsteroid     (abs)        0000
 __size_of_initCountDown        (abs)        0000
 __size_of_isr                  (abs)        0000
+__size_of_lcd_clear            (abs)        0000
+__size_of_lcd_init             (abs)        0000
+__size_of_lcd_puts             (abs)        0000
+__size_of_lcd_write            (abs)        0000
 __size_of_main                 (abs)        0000
-__size_of_sleep                (abs)        0000
 __size_of_updateAsteroidsSpeed (abs)        0000
-__size_of_updateCountDown      (abs)        0000
-__size_of_updatePoints         (abs)        0000
 __size_of_updateSpace          (abs)        0000
-_collision                     bssBANK0     0020
+_checkCollision                text443      02C5
 _digit0                        bssCOMMON    0070
-_digit1                        bssCOMMON    0072
-_divider                       bssCOMMON    0076
-_endGame                       bssCOMMON    0074
-_endMission                    text262      011D
+_digit1                        bssCOMMON    0071
+_displayCountDown              text446      02CF
+_displayPoints                 text445      02CE
+_displaySpace                  text436      025B
+_divider                       bssCOMMON    0072
+_endMission                    text441      02CD
 _exit                          init         0012
-_initCountDown                 text263      00FE
-_isr                           text264      0025
-_main                          maintext     006D
-_map                           strings      001B
-_sleep                         text258      00AB
-_updateAsteroidsSpeed          text259      011A
-_updateCountDown               text257      00D7
-_updatePoints                  text261      011C
-_updateSpace                   text260      011B
+_generateAsteroid              text444      02CA
+_indexLines                    bssCOMMON    0073
+_initCountDown                 text442      02B6
+_isr                           text448      01A6
+_lcd_clear                     text438      0290
+_lcd_init                      text435      014F
+_lcd_puts                      text437      0210
+_lcd_write                     text439      01E2
+_line0                         dataBANK0    0020
+_line1                         dataBANK0    0030
+_main                          maintext     00ED
+_map                           strings      0025
+_points                        bssBANK0     0049
+_status                        bssCOMMON    0074
+_updateAsteroidsSpeed          text447      02D0
+_updateSpace                   text440      0037
 btemp                          (abs)        007E
-end_of_initialization          cinit        0116
+end_of_initialization          cinit        028C
+init_fetch                     inittext     02A5
+init_ram                       inittext     02A9
 interrupt_function             intentry     0004
 intlevel0                      functab      0000
 intlevel1                      functab      0000
@@ -302,9 +374,12 @@ intlevel2                      functab      0000
 intlevel3                      functab      0000
 intlevel4                      functab      0000
 intlevel5                      functab      0000
+lcd_init@init_value            cstackBANK0  0047
+lcd_puts@s                     cstackBANK0  0043
+lcd_write@c                    cstackBANK0  0042
 reset_vec                      reset_vec    0000
 saved_w                        (abs)        007E
-sleep@i                        cstackBANK0  0022
 start                          init         0012
-start_initialization           cinit        010D
+start_initialization           cinit        0277
+updateSpace@prevIndex          cstackBANK0  0041
 wtemp0                         (abs)        007E

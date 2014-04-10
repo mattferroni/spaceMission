@@ -6,8 +6,8 @@ __CONFIG(0x23E2);
 // Using 8Mhz, we use 25 as an approximate divider
 #define DIVIDER 25
 
-#define EMPTY 0x20
-#define ASTEROIDS 0x23
+#define EMPTY 'A'
+#define ASTEROIDS 'B'
 #define CHERRY 0x0
 
 
@@ -28,8 +28,8 @@ unsigned char digit1 = 0;				// second digit of the countdown
 
 unsigned int points = 0;    //Points gained by the player.
 
-char line0[16];            //Display Line 0
-char line1[16];            //Display Line 1
+char line0[16]="----------------";            //Display Line 0
+char line1[16]="----------------";            //Display Line 1
 
 unsigned char indexLines;  //We can actually use two direct memory pointer to be faster
 
@@ -54,7 +54,7 @@ void interrupt isr(void) {
 			if(digit0 == 0){
 				if(digit1 == 0){
 					// Both are zero: game finished
-					status |= ENDGAME;
+//					status |= ENDGAME;
 				}else{
 					// Carry from digit 1
 					digit1--;
@@ -93,14 +93,16 @@ void displayPoints(){
 void displaySpace(){
     unsigned char index;
     //Position To begin of LCD
-    lcd_goto(0x0);
-    for (index = 0; index < 16; ++index){
-        lcd_write(line0[index]);
-    }
-    for (index = 0; index < 16; ++index){
-        lcd_write(line1[index]);
-    }
-
+    lcd_clear();
+	lcd_puts(line0);
+	lcd_puts(line1);
+//    for (index = 0; index < 16; ++index){
+//        lcd_write(line0[index]);
+//    }
+//    for (index = 0; index < 16; ++index){
+//        lcd_write(line1[index]);
+//    }
+//	sleep();
 }
 
 unsigned char generateAsteroid(){
@@ -112,10 +114,10 @@ void checkCollision(){
     // else
     // if spacecraft is up and line0[15] == asteroids, collision = 1
     if((status & POSITION) && line1[indexLines] == ASTEROIDS){
-        status |= COLLISION;
+//        status |= COLLISION;
     }   
     if(!(status & POSITION) && line0[indexLines] == ASTEROIDS){
-        status |= COLLISION;
+//        status |= COLLISION;
     }       
 }
 
@@ -218,11 +220,17 @@ void endMission(){
 // --- Main ---
 int main(){
     // port settings
-    ANSEL=0x00;
-    ANSELH=0x00;
+   INTCON = 0;
+   TRISB = 0b11000000;
+   ANSEL = 0b00000100;
+   ANSELH = 0x00;
+   
 
     TRISD=0b00000000;   // PORTD used for 7-digits leds 
 
+	lcd_init();
+	lcd_clear();
+	lcd_puts("Welcome");
     initCountDown();
     
     GIE=1;      //enable all interrupts
