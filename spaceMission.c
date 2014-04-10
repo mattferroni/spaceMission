@@ -35,15 +35,6 @@ unsigned char indexLines;  //We can actually use two direct memory pointer to be
 
 
 
-// --- Functions headers ---
-void endMission();
-void updateCountDown();
-void sleep();
-void initCountDown();
-void updatePoints();
-void updateSpace();	
-void updateAsteroidsSpeed();
-
 
 // --- Interrupts handling ---
 void interrupt isr(void) {
@@ -79,36 +70,6 @@ void interrupt isr(void) {
 }
 
 
-// --- Main ---
-int main(){
-    // port settings
-    ANSEL=0x00;
-    ANSELH=0x00;
-
-	TRISD=0b00000000;	// PORTD used for 7-digits leds 
-
-    initCountDown();
-	
-	GIE=1;		//enable all interrupts
-
-	// --- main loop ---
-	while(1){
-		// Countdown reached 0 
-		// or the spacecraft collided with an asteroid
-        if (status & UPDATE){
-            updateSpace();
-            status &= ~UPDATE;
-        }
-		if(status & ENDGAME || status & COLLISION ){
-			endMission();			// End mission
-		}else{
-			displayCountDown();		// Update countdown
-			displayPoints();			// display points			
-			displaySpace();			// display asteroids and show them on LCD display
-			updateAsteroidsSpeed();	// Poll ADC: set asteroids speed		
-		}
-	}
-}
 
 // TODO: This function is used to update the asteroids speed
 void updateAsteroidsSpeed(){
@@ -250,3 +211,38 @@ void initCountDown(){
 void endMission(){
 	// Update LCD with the final points and a message
 }
+
+
+// --- Main ---
+int main(){
+    // port settings
+    ANSEL=0x00;
+    ANSELH=0x00;
+
+    TRISD=0b00000000;   // PORTD used for 7-digits leds 
+
+    initCountDown();
+    
+    GIE=1;      //enable all interrupts
+
+    // --- main loop ---
+    while(1){
+        // Countdown reached 0 
+        // or the spacecraft collided with an asteroid
+        if (status & UPDATE){
+            updateSpace();
+            status &= ~UPDATE;
+        }
+
+        if(status & ENDGAME || status & COLLISION ){
+            endMission();           // End mission
+        }else{
+            displayCountDown();     // Update countdown
+            displayPoints();            // display points           
+            displaySpace();         // display asteroids and show them on LCD display
+            updateAsteroidsSpeed(); // Poll ADC: set asteroids speed        
+        }
+    }
+}
+
+
