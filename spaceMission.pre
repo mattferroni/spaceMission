@@ -589,24 +589,12 @@ char line1[16];
 
 unsigned char indexLines;
 
-
-
-
-void endMission();
-void updateCountDown();
-void sleep();
-void initCountDown();
-void updatePoints();
-void updateSpace();
-void updateAsteroidsSpeed();
-
-
-
+# 40
 void interrupt isr(void) {
 
 GIE=0;
 
-# 58
+# 49
 if (T0IF == 1){
 T0IF=0;
 if (divider==25){
@@ -631,36 +619,6 @@ GIE=1;
 }
 
 
-
-int main(){
-
-ANSEL=0x00;
-ANSELH=0x00;
-
-TRISD=0b00000000;
-
-initCountDown();
-
-GIE=1;
-
-
-while(1){
-
-
-if (status & 0x8){
-updateSpace();
-status &= ~0x8;
-}
-if(status & 0x1 || status & 0x2 ){
-endMission();
-}else{
-displayCountDown();
-displayPoints();
-displaySpace();
-updateAsteroidsSpeed();
-}
-}
-}
 
 
 void updateAsteroidsSpeed(){
@@ -698,7 +656,7 @@ return 1;
 
 void updateSpace(){
 
-# 153
+# 114
 if(line0[indexLines] == 0x23 || line1[indexLines] == 0x23){
 ++points;
 }
@@ -799,3 +757,37 @@ divider=0;
 void endMission(){
 
 }
+
+
+
+int main(){
+
+ANSEL=0x00;
+ANSELH=0x00;
+
+TRISD=0b00000000;
+
+initCountDown();
+
+GIE=1;
+
+
+while(1){
+
+
+if (status & 0x8){
+updateSpace();
+status &= ~0x8;
+}
+
+if(status & 0x1 || status & 0x2 ){
+endMission();
+}else{
+displayCountDown();
+displayPoints();
+displaySpace();
+updateAsteroidsSpeed();
+}
+}
+}
+
