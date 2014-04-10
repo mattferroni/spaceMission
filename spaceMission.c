@@ -22,6 +22,7 @@ const unsigned char asteroid[]={0x4,0xe,0x1e,0xf,0x1e,0x1c,0x4};
 #define COLLISION 0x2
 #define POSITION 0x4
 #define UPDATE 0x8
+#define RANDOM 0x80
 
 // --- Global variables ---
 unsigned char status = 0;       //Maskbit: ENDGAME[0], COLLISION[1], POSITION[2]
@@ -31,6 +32,8 @@ unsigned char digit0 = 0;				// first digit of the countdown
 unsigned char digit1 = 0;				// second digit of the countdown
 
 unsigned int points = 0;    //Points gained by the player.
+
+unsigned char random = 1;
 
 char line0[16]="                ";            //Display Line 0
 char line1[16]="                ";            //Display Line 1
@@ -45,6 +48,7 @@ void interrupt isr(void) {
     //disable all interrupts
 	GIE=0;
 	
+	status |= RANDOM;
 	// TODO: Button up pressed: push up the spacecraft
 
 	// TODO: Button down: pull down the spacecraft
@@ -118,7 +122,7 @@ void displaySpace(){
 }
 
 unsigned char generateAsteroid(){
-    return 1;
+	return (TMR0 % 11)& 0x1;	
 }
 
 void checkCollision(){
@@ -126,10 +130,10 @@ void checkCollision(){
     // else
     // if spacecraft is up and line0[15] == asteroids, collision = 1
     if((status & POSITION) && line1[indexLines] == ASTEROIDS){
-//        status |= COLLISION;
+		status |= COLLISION;
     }   
     if(!(status & POSITION) && line0[indexLines] == ASTEROIDS){
-//        status |= COLLISION;
+		status |= COLLISION;
     }       
 }
 
