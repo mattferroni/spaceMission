@@ -31,6 +31,8 @@ extern void lcd_init(void);
 
 extern void lcd_putch(char);
 
+extern void LCD_build(unsigned char, unsigned char *);
+
 /*	Set the cursor position */
 
 #define	lcd_cursor(x)	lcd_write(((x)&0x7F)|0x80)

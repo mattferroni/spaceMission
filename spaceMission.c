@@ -7,13 +7,16 @@ __CONFIG(0x23E2);
 #define DIVIDER 25
 
 #define LCD_RS RB4
-#define EMPTY 'A'
-#define ASTEROIDS 'B'
+#define EMPTY '\x03'
+#define ASTEROIDS '\x02'
 #define CHERRY 0x0
-
+#define SPACECRAFT '\x01'
 
 // 7-digit leds encoding
 const unsigned char map[]={63,6,91,79,102,109,125,7,127,111};
+const unsigned char cherry[]={0x2,0x4,0xe,0x15,0x11,0x11,0xe};
+const unsigned char spacecraft[]={0x0,0x10,0x1c,0x1b,0x1c,0x10,0x0};
+const unsigned char asteroid[]={0x4,0xe,0x1e,0xf,0x1e,0x1c,0x4};
 
 #define ENDGAME 0x1
 #define COLLISION 0x2
@@ -29,8 +32,8 @@ unsigned char digit1 = 0;				// second digit of the countdown
 
 unsigned int points = 0;    //Points gained by the player.
 
-char line0[16]="----------------";            //Display Line 0
-char line1[16]="----------------";            //Display Line 1
+char line0[16]="                ";            //Display Line 0
+char line1[16]="                ";            //Display Line 1
 
 unsigned char indexLines;  //We can actually use two direct memory pointer to be faster
 
@@ -98,7 +101,7 @@ void displaySpace(){
 	LCD_RS = 1;
 	for(index=0; index < 16; ++index){	
 		if(!(status & POSITION) && index == 0){
-			lcd_write('>');
+			lcd_write(SPACECRAFT);
 		}else{
 			lcd_write(line0[(index + indexLines) % 16]);
 		}
@@ -107,7 +110,7 @@ void displaySpace(){
 	LCD_RS = 1;
 	for(index=0; index < 16; ++index){	
 		if((status & POSITION) && index == 0){
-			lcd_write('>');
+			lcd_write(SPACECRAFT);
 		}else{
 			lcd_write(line1[(index + indexLines) % 16]);
 		}
@@ -240,6 +243,12 @@ int main(){
 	lcd_init();
 	lcd_clear();
 	lcd_puts("Welcome");
+
+    LCD_build(1,spacecraft);
+    LCD_build(2,asteroid);
+    LCD_build(3,cherry);
+
+
     initCountDown();
     
     GIE=1;      //enable all interrupts

@@ -113,3 +113,17 @@ lcd_init()
    lcd_clear();   // Clear screen
    lcd_write(0x6); // Set entry Mode
 }
+
+void LCD_build(unsigned char location, unsigned char *ptr){
+   unsigned char i;
+   if(location<8){
+      LCD_RS = 0;
+      lcd_write(0x40+(location*8));
+      LCD_RS = 1;
+      for(i=0;i<8;i++){
+         lcd_write(ptr[i]);
+      }
+      }
+    LCD_RS = 0;
+    lcd_write(0x80);
+}
