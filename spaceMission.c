@@ -6,6 +6,7 @@ __CONFIG(0x23E2);
 
 #define EMPTY 0x20
 #define ASTEROIDS 0x23
+#define CHERRY 0x0
 
 
 // 7-digit leds encoding
@@ -16,17 +17,18 @@ const unsigned char map[]={63,6,91,79,102,109,125,7,127,111};
 #define POSITION 0x4
 
 // --- Global variables ---
-unsigned char status = 0; 
-//unsigned char endGame = 0;		// 1 if game is finished
-//unsigned char collision = 0;	// 1 if a collision happened
-unsigned char divider=0;			// helper variable for 
-unsigned char digit0=0;				// first digit of the countdown
-unsigned char digit1=0;				// second digit of the countdown
+unsigned char status = 0;       //Maskbit: ENDGAME[0], COLLISION[1], POSITION[2]
+
+unsigned char divider = 0;			// helper variable for 
+unsigned char digit0 = 0;				// first digit of the countdown
+unsigned char digit1 = 0;				// second digit of the countdown
+
+unsigned int points = 0;    //Points gained by the player.
 
 char line0[16];            //Display Line 0
 char line1[16];            //Display Line 1
 
-unsigned char pointerLine;  //We can actually use two direct memory pointer to be faster
+unsigned char indexLines;  //We can actually use two direct memory pointer to be faster
 
 
 
@@ -90,12 +92,12 @@ int main(){
 	while(1){
 		// Countdown reached 0 
 		// or the spacecraft collided with an asteroid
-		if(endGame == 0 || collision == 1){
+		if(status & ENDGAME || status & COLLISION ){
 			endMission();			// End mission
 		}else{
-			updateCountDown();		// Update countdown
-			updatePoints();			// Update points			
-			updateSpace();			// Update asteroids and show them on LCD display
+			displayCountDown();		// Update countdown
+			displayPoints();			// display points			
+			displaySpace();			// display asteroids and show them on LCD display
 			updateAsteroidsSpeed();	// Poll ADC: set asteroids speed		
 		}
 	}
@@ -108,25 +110,90 @@ void updateAsteroidsSpeed(){
 	// Normalize that value and store it in a global variable
 }
 
+void displayCountDown(){
+
+}
+
+void displayPoints(){
+
+}
+
+void displaySpace(){
+
+}
+
+unsigned char generateAsteroid(){
+    return 1;
+}
+
+
 // TODO: This function is used to update the asteroids and LCD display
 void updateSpace(){
 	// ASSUMPTION: Use 2 "circular" buffers (one for each line) of 16 digits each (line1 and line0)	
 	// ASSUMPTION: Use a binary value to store the position of the spacecraft (up or down)
 
-	// If line1[15] contains an asteroids, points++;
-	// If line0[15] contains an asteroids, points++;
-	// Left bit-shift both
-	
-	// if spacecraft is up and line1[15] == asteroids, collision = 1
-	// else
-	// if spacecraft is up and line0[15] == asteroids, collision = 1
+    // If line1[15] contains an asteroids, points++;
+    // If line0[15] contains an asteroids, points++;
+    if(line0[indexLines] == ASTEROIDS || line1[indexLines] == ASTEROIDS){
+        ++points;
+    }
 
-	// Generate a new asteroid randomly on line1[0]	
-	// If no asteroid have been generated on line1[0]
-	// Generate a new asteroid randomly on line0[0]
+    // Generate a new asteroid randomly on line1[0] 
+    // If no asteroid have been generated on line1[0]
+    // Generate a new asteroid randomly on line0[0]
+    unsigned char prevIndex 0;
+
+    if (indexLines !=0){
+        prevIndex  = indexLines-1;
+    } else {
+        prevIndex = 15;
+    }
+
+    if (generateAsteroid()){
+        if(line1[prevIndex] !=  ASTEROIDS){
+            line0[indexLines] = ASTEROIDS;
+        } else {
+            line0[indexLines] = EMPTY;
+        }
+        line1[indexLines] =  EMPTY;
+
+    }else if(generateAsteroid()){
+        if(line0[prevIndex] !=  ASTEROIDS){
+            line1[indexLines] = ASTEROIDS;
+        } else {
+            line1[indexLines] = EMPTY;
+        }
+        line0[indexLines] =  EMPTY;
+    } else {
+
+        line0[indexLines] = EMPTY;
+        line1[indexLines] = EMPTY;
+    }
+
+    // Update buffer index
+    if (++indexLines > 15){
+        indexLines = 0;
+    }
+
+    //Check collisions
+    checkCollision();
+	
+
 
 	// if spacecraft is up, print ">", else print = ">"
 	// Print the output on the LCD
+}
+
+void checkCollision(){
+    // if spacecraft is up and line1[15] == asteroids, collision = 1
+    // else
+    // if spacecraft is up and line0[15] == asteroids, collision = 1
+    if((status & POSITION) && line1[indexLines] == ASTEROIDS){
+        status |= COLLISION;
+    }   
+    if(!(status & POSITION) && line0[indexLines] == ASTEROIDS){
+        status |= COLLISION;
+    }       
 }
 
 // TODO: This function is used to update the points
