@@ -3,16 +3,31 @@ __CONFIG(0x23E2);
 
 // Using 8Mhz, we use 25 as an approximate divider
 #define DIVIDER 25
+
+#define EMPTY 0x20
+#define ASTEROIDS 0x23
+
+
 // 7-digit leds encoding
 const unsigned char map[]={63,6,91,79,102,109,125,7,127,111};
 
+#define ENDGAME 0x1
+#define COLLISION 0x2
+#define POSITION 0x4
 
 // --- Global variables ---
-unsigned short int endGame = 0;		// 1 if game is finished
-unsigned short int collision = 0;	// 1 if a collision happened
+unsigned char status = 0; 
+//unsigned char endGame = 0;		// 1 if game is finished
+//unsigned char collision = 0;	// 1 if a collision happened
 unsigned char divider=0;			// helper variable for 
-unsigned int digit0=0;				// first digit of the countdown
-unsigned int digit1=0;				// second digit of the countdown
+unsigned char digit0=0;				// first digit of the countdown
+unsigned char digit1=0;				// second digit of the countdown
+
+char line0[16];            //Display Line 0
+char line1[16];            //Display Line 1
+
+unsigned char pointerLine;  //We can actually use two direct memory pointer to be faster
+
 
 
 // --- Functions headers ---
