@@ -1,4 +1,6 @@
 #include <pic.h>
+#include "lcd.h"
+
 __CONFIG(0x23E2);
 
 // Using 8Mhz, we use 25 as an approximate divider
@@ -15,6 +17,7 @@ const unsigned char map[]={63,6,91,79,102,109,125,7,127,111};
 #define ENDGAME 0x1
 #define COLLISION 0x2
 #define POSITION 0x4
+#define UPDATE 0x8
 
 // --- Global variables ---
 unsigned char status = 0;       //Maskbit: ENDGAME[0], COLLISION[1], POSITION[2]
@@ -56,11 +59,11 @@ void interrupt isr(void) {
         T0IF=0;		//reset timer interrupt
         if (divider==DIVIDER){
             divider=0;
-			
+            status |= UPDATE;
 			if(digit0 == 0){
 				if(digit1 == 0){
 					// Both are zero: game finished
-					endGame = 1;
+					status |= ENDGAME;
 				}else{
 					// Carry from digit 1
 					digit1--;
@@ -92,6 +95,10 @@ int main(){
 	while(1){
 		// Countdown reached 0 
 		// or the spacecraft collided with an asteroid
+        if (status & UPDATE){
+            updateSpace();
+            status &= ~UPDATE;
+        }
 		if(status & ENDGAME || status & COLLISION ){
 			endMission();			// End mission
 		}else{
@@ -119,6 +126,15 @@ void displayPoints(){
 }
 
 void displaySpace(){
+    unsigned char index;
+    //Position To begin of LCD
+    lcd_goto(0x0);
+    for (index = 0; index < 16; ++index){
+        lcd_write(line0[index]);
+    }
+    for (index = 0; index < 16; ++index){
+        lcd_write(line1[index]);
+    }
 
 }
 
@@ -178,7 +194,6 @@ void updateSpace(){
     //Check collisions
     checkCollision();
 	
-
 
 	// if spacecraft is up, print ">", else print = ">"
 	// Print the output on the LCD
