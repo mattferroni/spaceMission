@@ -1,7 +1,7 @@
 
-# 1 "C:\Users\Matt\Dropbox\Progetto microcontrollers (Zappa)\spaceMission.c"
+# 1 "C:\Users\Michele\Documents\GitHub\spaceMission\spaceMission.c"
 
-# 19 "C:\Program Files\HI-TECH Software\PICC\9.80\include\pic16f887.h"
+# 19 "C:\Program Files (x86)\HI-TECH Software\PICC\9.80\include\pic16f887.h"
 volatile unsigned char INDF @ 0x000;
 volatile unsigned char TMR0 @ 0x001;
 volatile unsigned char PCL @ 0x002;
@@ -532,37 +532,63 @@ volatile bit WRERR @ ((unsigned)&EECON1*8)+3;
 volatile bit EEPGD @ ((unsigned)&EECON1*8)+7;
 
 
-# 503 "C:\Program Files\HI-TECH Software\PICC\9.80\include\pic.h"
+# 503 "C:\Program Files (x86)\HI-TECH Software\PICC\9.80\include\pic.h"
 #pragma inline(_nop)
 extern void _nop(void);
 
 # 556
 extern unsigned int flash_read(unsigned short addr);
 
-# 41 "C:\Program Files\HI-TECH Software\PICC\9.80\include\eeprom_routines.h"
+# 41 "C:\Program Files (x86)\HI-TECH Software\PICC\9.80\include\eeprom_routines.h"
 extern void eeprom_write(unsigned char addr, unsigned char value);
 extern unsigned char eeprom_read(unsigned char addr);
 
 
-# 629 "C:\Program Files\HI-TECH Software\PICC\9.80\include\pic.h"
+# 629 "C:\Program Files (x86)\HI-TECH Software\PICC\9.80\include\pic.h"
 #pragma inline(_delay)
 extern void _delay(unsigned long);
 
-# 2 "C:\Users\Matt\Dropbox\Progetto microcontrollers (Zappa)\spaceMission.c"
+# 14 "C:\Users\Michele\Documents\GitHub\spaceMission\lcd.h"
+extern void lcd_write(unsigned char);
+
+
+
+extern void lcd_clear(void);
+
+
+
+extern void lcd_puts(const char * s);
+
+
+
+extern void lcd_goto(unsigned char pos);
+
+
+
+extern void lcd_init(void);
+
+extern void lcd_putch(char);
+
+# 4 "C:\Users\Michele\Documents\GitHub\spaceMission\spaceMission.c"
 asm("\tpsect config,class=CONFIG,delta=2"); asm("\tdw ""0x23E2");
 
-
-
-
+# 15
 const unsigned char map[]={63,6,91,79,102,109,125,7,127,111};
 
+# 23
+unsigned char status = 0;
 
+unsigned char divider = 0;
+unsigned char digit0 = 0;
+unsigned char digit1 = 0;
 
-unsigned short int endGame = 0;
-unsigned short int collision = 0;
-unsigned char divider=0;
-unsigned int digit0=0;
-unsigned int digit1=0;
+unsigned int points = 0;
+
+char line0[16];
+char line1[16];
+
+unsigned char indexLines;
+
 
 
 
@@ -580,16 +606,16 @@ void interrupt isr(void) {
 
 GIE=0;
 
-# 38
+# 58
 if (T0IF == 1){
 T0IF=0;
 if (divider==25){
 divider=0;
-
+status |= 0x8;
 if(digit0 == 0){
 if(digit1 == 0){
 
-endGame = 1;
+status |= 0x1;
 }else{
 
 digit1--;
@@ -621,12 +647,16 @@ GIE=1;
 while(1){
 
 
-if(endGame == 0 || collision == 1){
+if (status & 0x8){
+updateSpace();
+status &= ~0x8;
+}
+if(status & 0x1 || status & 0x2 ){
 endMission();
 }else{
-updateCountDown();
-updatePoints();
-updateSpace();
+displayCountDown();
+displayPoints();
+displaySpace();
 updateAsteroidsSpeed();
 }
 }
@@ -639,10 +669,95 @@ void updateAsteroidsSpeed(){
 
 }
 
+void displayCountDown(){
+
+}
+
+void displayPoints(){
+
+}
+
+void displaySpace(){
+unsigned char index;
+
+lcd_goto(0x0);
+for (index = 0; index < 16; ++index){
+lcd_write(line0[index]);
+}
+for (index = 0; index < 16; ++index){
+lcd_write(line1[index]);
+}
+
+}
+
+unsigned char generateAsteroid(){
+return 1;
+}
+
+
 
 void updateSpace(){
 
-# 116
+# 153
+if(line0[indexLines] == 0x23 || line1[indexLines] == 0x23){
+++points;
+}
+
+
+
+
+unsigned char prevIndex 0;
+
+if (indexLines !=0){
+prevIndex = indexLines-1;
+} else {
+prevIndex = 15;
+}
+
+if (generateAsteroid()){
+if(line1[prevIndex] != 0x23){
+line0[indexLines] = 0x23;
+} else {
+line0[indexLines] = 0x20;
+}
+line1[indexLines] = 0x20;
+
+}else if(generateAsteroid()){
+if(line0[prevIndex] != 0x23){
+line1[indexLines] = 0x23;
+} else {
+line1[indexLines] = 0x20;
+}
+line0[indexLines] = 0x20;
+} else {
+
+line0[indexLines] = 0x20;
+line1[indexLines] = 0x20;
+}
+
+
+if (++indexLines > 15){
+indexLines = 0;
+}
+
+
+checkCollision();
+
+
+
+
+}
+
+void checkCollision(){
+
+
+
+if((status & 0x4) && line1[indexLines] == 0x23){
+status |= 0x2;
+}
+if(!(status & 0x4) && line0[indexLines] == 0x23){
+status |= 0x2;
+}
 }
 
 
