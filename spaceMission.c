@@ -7,8 +7,8 @@ __CONFIG(0x23E2);
 #define DIVIDER 25
 
 #define LCD_RS RB4
-#define EMPTY 'A'
-#define ASTEROIDS 'B'
+#define EMPTY ' '
+#define ASTEROIDS 'X'
 #define CHERRY 0x0
 
 
@@ -19,6 +19,7 @@ const unsigned char map[]={63,6,91,79,102,109,125,7,127,111};
 #define COLLISION 0x2
 #define POSITION 0x4
 #define UPDATE 0x8
+#define RANDOM 0x80
 
 // --- Global variables ---
 unsigned char status = 0;       //Maskbit: ENDGAME[0], COLLISION[1], POSITION[2]
@@ -29,8 +30,10 @@ unsigned char digit1 = 0;				// second digit of the countdown
 
 unsigned int points = 0;    //Points gained by the player.
 
-char line0[16]="----------------";            //Display Line 0
-char line1[16]="----------------";            //Display Line 1
+unsigned char random = 1;
+
+char line0[16]="                ";            //Display Line 0
+char line1[16]="                ";            //Display Line 1
 
 unsigned char indexLines;  //We can actually use two direct memory pointer to be faster
 
@@ -42,6 +45,7 @@ void interrupt isr(void) {
     //disable all interrupts
 	GIE=0;
 	
+	status |= RANDOM;
 	// TODO: Button up pressed: push up the spacecraft
 
 	// TODO: Button down: pull down the spacecraft
@@ -115,7 +119,7 @@ void displaySpace(){
 }
 
 unsigned char generateAsteroid(){
-    return 1;
+	return (TMR0 % 11)& 0x1;	
 }
 
 void checkCollision(){
@@ -123,10 +127,10 @@ void checkCollision(){
     // else
     // if spacecraft is up and line0[15] == asteroids, collision = 1
     if((status & POSITION) && line1[indexLines] == ASTEROIDS){
-//        status |= COLLISION;
+		status |= COLLISION;
     }   
     if(!(status & POSITION) && line0[indexLines] == ASTEROIDS){
-//        status |= COLLISION;
+		status |= COLLISION;
     }       
 }
 
