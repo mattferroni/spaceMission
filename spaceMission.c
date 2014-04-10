@@ -69,6 +69,10 @@ void interrupt isr(void) {
     GIE=1; //enable all interrupt
 }
 
+// Helper function: wait for a while
+void sleep(){
+    for(int i = 0; i < 256; i++);
+}
 
 
 // TODO: This function is used to update the asteroids speed
@@ -103,6 +107,18 @@ unsigned char generateAsteroid(){
     return 1;
 }
 
+void checkCollision(){
+    // if spacecraft is up and line1[15] == asteroids, collision = 1
+    // else
+    // if spacecraft is up and line0[15] == asteroids, collision = 1
+    if((status & POSITION) && line1[indexLines] == ASTEROIDS){
+        status |= COLLISION;
+    }   
+    if(!(status & POSITION) && line0[indexLines] == ASTEROIDS){
+        status |= COLLISION;
+    }       
+}
+
 
 // TODO: This function is used to update the asteroids and LCD display
 void updateSpace(){
@@ -118,7 +134,7 @@ void updateSpace(){
     // Generate a new asteroid randomly on line1[0] 
     // If no asteroid have been generated on line1[0]
     // Generate a new asteroid randomly on line0[0]
-    unsigned char prevIndex 0;
+    unsigned char prevIndex = 0;
 
     if (indexLines !=0){
         prevIndex  = indexLines-1;
@@ -160,17 +176,6 @@ void updateSpace(){
 	// Print the output on the LCD
 }
 
-void checkCollision(){
-    // if spacecraft is up and line1[15] == asteroids, collision = 1
-    // else
-    // if spacecraft is up and line0[15] == asteroids, collision = 1
-    if((status & POSITION) && line1[indexLines] == ASTEROIDS){
-        status |= COLLISION;
-    }   
-    if(!(status & POSITION) && line0[indexLines] == ASTEROIDS){
-        status |= COLLISION;
-    }       
-}
 
 // TODO: This function is used to update the points
 void updatePoints(){
@@ -190,10 +195,7 @@ void updateCountDown(){
 	sleep();
 	RA1=0; // Enable 7-segment display
 }
-// Helper function: wait for a while
-void sleep(){
-	for(int i = 0; i < 256; i++);
-}
+
 void initCountDown(){
     //timer settings
     T0CS=0;		//internal source
