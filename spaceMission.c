@@ -6,6 +6,7 @@ __CONFIG(0x23E2);
 // Using 8Mhz, we use 25 as an approximate divider
 #define DIVIDER 25
 
+#define LCD_RS RB4
 #define EMPTY 'A'
 #define ASTEROIDS 'B'
 #define CHERRY 0x0
@@ -92,17 +93,25 @@ void displayPoints(){
 
 void displaySpace(){
     unsigned char index;
-    //Position To begin of LCD
-    lcd_clear();
-	lcd_puts(line0);
-	lcd_puts(line1);
-//    for (index = 0; index < 16; ++index){
-//        lcd_write(line0[index]);
-//    }
-//    for (index = 0; index < 16; ++index){
-//        lcd_write(line1[index]);
-//    }
-//	sleep();
+
+	lcd_goto(0x0);
+	LCD_RS = 1;
+	for(index=0; index < 16; ++index){	
+		if(!(status & POSITION) && index == 0){
+			lcd_write('>');
+		}else{
+			lcd_write(line0[(index + indexLines) % 16]);
+		}
+	}
+	lcd_goto(0x40);
+	LCD_RS = 1;
+	for(index=0; index < 16; ++index){	
+		if((status & POSITION) && index == 0){
+			lcd_write('>');
+		}else{
+			lcd_write(line1[(index + indexLines) % 16]);
+		}
+	}
 }
 
 unsigned char generateAsteroid(){
