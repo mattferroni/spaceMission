@@ -8,6 +8,8 @@ __CONFIG(0x23E2);
 
 #define LCD_RS RB4
 
+#define CHERRYPOINTS 10
+
 //Characters mapped by LCD_build
 #define EMPTY '\x20'
 #define ASTEROIDS '\x02'
@@ -25,19 +27,20 @@ const unsigned char sad[]={0x0,0x2,0x14,0x4,0x14,0x2,0x0};
 #define COLLISION 0x02
 #define POSITION 0x04
 #define UPDATE 0x08
-#define UPDATESPEED 0x10
 #define RANDOM 0x80
 
 // --- Global variables ---
 unsigned char status = 0;       //Maskbit: ENDGAME[0], COLLISION[1], POSITION[2]
+
+unsigned char c1,c2,c3,c4;      //Charachter  LED Display
 
 unsigned char refDivider = 25;
 
 unsigned char updateDivider = 0;
 unsigned char divider = 0;			// helper variable for 
 unsigned char digit0 = 0;				// first digit of the countdown
-unsigned char digit1 = 0;				// second digit of the countdown
-
+unsigned char digit1 = 6;				// second digit of the countdown
+unsigned char countdown = 60;
 unsigned int points = 0;    //Points gained by the player.
 
 char line0[16]="                ";            //Display Line 0
@@ -53,42 +56,30 @@ void interrupt isr(void) {
     //disable all interrupts
 	GIE=0;
 	
-     if (ADIF ==  1){
-        
-         ADIF = 0;
-        
-         refDivider = ADRESH;
-         status |= UPDATESPEED;
-
-        GODONE = 1;
-    }
-
 
 	// Timer interrupt: decrement the count down
-	else if (T0IF == 1){
+    status |= RANDOM;
+
+	if (T0IF == 1){
         T0IF=0;		//reset timer interrupt
-        status |= RANDOM;
 
         if (updateDivider==refDivider){
             updateDivider = 0;
             status |= UPDATE;
         }
-        else
+        else {
             updateDivider++;
-
+        }
         if (divider==DIVIDER){
             divider=0;
-			if(digit0 == 0){
-				if(digit1 == 0){
-					// Both are zero: game finished
-//					status |= ENDGAME;
-				}else{
-					// Carry from digit 1
-					digit1--;
-					digit0 = 9;
+			if(countdown == 0){
+    			status |= ENDGAME;
 				}
-			}else
-				digit0--;	// Decrement digit 0
+			else {
+				countdown--;	// Decrement digit 0
+                c3 = (countdown/10) %10;
+                c4 = countdown % 10;
+            }
         }
         else
             divider++;
@@ -98,40 +89,27 @@ void interrupt isr(void) {
 
 // Helper function: wait for a while
 void sleep(){
-    for(int i = 0; i < 1255; i++);
+    for(int i = 0; i < 255; i++);
 }
 
+void displayDigits(){
 
-// TODO: This function is used to update the asteroids speed
-void updateAsteroidsSpeed(){
-	// Poll the value from the potentiometer, using the ADC
-	
-	// Normalize that value and store it in a global variable
-}
-
-void displayCountDown(){
-    char c1,c2,c3,c4;
-    c1 = 1;
-    c2 = 0;
-    c3 = 2;
-    c4 = 4;
-
-    PORTD = map[(refDivider/1000) %10];
+    PORTD = map[c1];
     PORTA = ~0x08;
     sleep();
     PORTA = 0xFF;
 
-    PORTD = map[(refDivider/100) %10];
+    PORTD = map[c2];
     PORTA = ~0x04;
     sleep();
     PORTA = 0xFF;
 
-    PORTD = map[(refDivider/10) %10];
+    PORTD = map[c3];
     PORTA = ~0x02;
     sleep();
     PORTA = 0xFF;
 
-    PORTD = map[refDivider %10];
+    PORTD = map[c4];
     PORTA = ~0x01;
     sleep();
     PORTA = 0xFF;
@@ -139,9 +117,6 @@ void displayCountDown(){
 
 }
 
-void displayPoints(){
-
-}
 
 void displaySpace(){
     unsigned char index;
@@ -167,7 +142,14 @@ void displaySpace(){
 }
 
 unsigned char generateAsteroid(){
-	return (TMR0 % 11)& 0x1;	
+	return (TMR0+(ADRESL >> 6) % 17)& 0x1;	
+}
+
+unsigned char generateCherry(){
+    if ((TMR0 % 66 == 0)){
+        return CHERRY;
+    }
+    return EMPTY;    
 }
 
 void checkCollision(){
@@ -180,6 +162,17 @@ void checkCollision(){
     if(!(status & POSITION) && line0[indexLines] == ASTEROIDS){
 		status |= COLLISION;
     }       
+
+    if((status & POSITION) && line1[indexLines] == CHERRY){
+        points += CHERRYPOINTS;
+        line1[indexLines] = EMPTY;
+    }   
+    if(!(status & POSITION) && line0[indexLines] == CHERRY){
+        points += CHERRYPOINTS;
+        line1[indexLines] = EMPTY;
+    }  
+
+
 }
 
 
@@ -192,6 +185,8 @@ void updateSpace(){
     // If line0[15] contains an asteroids, points++;
     if(line0[indexLines] == ASTEROIDS || line1[indexLines] == ASTEROIDS){
         ++points;
+        c1 = (points/10) %10;
+        c2 = points % 10;
     }
 
     // Generate a new asteroid randomly on line1[0] 
@@ -209,21 +204,21 @@ void updateSpace(){
         if(line1[prevIndex] !=  ASTEROIDS){
             line0[indexLines] = ASTEROIDS;
         } else {
-            line0[indexLines] = EMPTY;
+            line0[indexLines] = generateCherry();
         }
-        line1[indexLines] =  EMPTY;
+        line1[indexLines] =  generateCherry();
 
     }else if(generateAsteroid()){
         if(line0[prevIndex] !=  ASTEROIDS){
             line1[indexLines] = ASTEROIDS;
         } else {
-            line1[indexLines] = EMPTY;
+            line1[indexLines] = generateCherry();
         }
-        line0[indexLines] =  EMPTY;
+        line0[indexLines] =  generateCherry();
     } else {
 
-        line0[indexLines] = EMPTY;
-        line1[indexLines] = EMPTY;
+        line0[indexLines] = generateCherry();
+        line1[indexLines] = generateCherry();
     }
 
     // Update buffer index
@@ -240,25 +235,6 @@ void updateSpace(){
 }
 
 
-// TODO: This function is used to update the points
-void updatePoints(){
-	// See updateCountDown() for an example
-}
-
-// This function is used to update the countdown
-void updateCountDown(){
-	// If you use a cathod display, use the NOT (~)
-	PORTD = map[digit0];
-	RA0=1; // Enable 7-segment display
-	sleep();
-	RA0=0; // Enable 7-segment display
-
-	PORTD = map[digit1];
-	RA1=1; // Enable 7-segment display
-	sleep();
-	RA1=0; // Enable 7-segment display
-}
-
 void initCountDown(){
     //timer settings
     T0CS=0;		//internal source
@@ -272,9 +248,37 @@ void initCountDown(){
     divider=0;	//initialize divider
 }
 
+int pow(int b, int exp){
+    int res = 1;
+    for (int i = 0; i<exp; ++i){
+        res *= b;
+    }
+    return res;
+}
 // TODO: This function is called as soon as the mission is finisched
 void endMission(){
     lcd_clear();
+//    lcd_puts("   GameOver! \x04  ");
+    char pointLine[16];
+    char i = 0;
+    int j;
+    for (int p=points; p>0; p/=10){
+        ++i;
+    }
+
+    for (j=0; j < i; ++j){
+        pointLine[j] = '0' + (points/pow(10,(i-j-1)) %10);
+    }
+
+    pointLine[j++] = ' ';
+    pointLine[j++] = 'P';
+    pointLine[j++] = 't';
+    if (points != 1)
+        pointLine[j++] = 's';
+    pointLine[j++] = 0;
+
+    lcd_puts(pointLine);
+    lcd_goto(0x40);
     lcd_puts("   GameOver! \x04  ");
 	// Update LCD with the final points and a message
 }
@@ -322,14 +326,9 @@ int main(){
     initCountDown();
     
 
-    PEIE = 1; //enable peripherals interrupts 
-    ADIE = 1; //enable ADC interrupt 
-    ADIF = 0; //reset flag
-
     GIE=1;      //enable all interrupts
 
     GODONE = 1;
-
     // --- main loop ---
     while(1){
         // Countdown reached 0 
@@ -355,13 +354,19 @@ int main(){
                 status |= POSITION;
                 checkCollision();
             }
-            if (status & UPDATESPEED){
-                displayCountDown();     // Update countdown
-                status &= ~UPDATESPEED;
+
+            // Poll ADC: set asteroids speed  
+            if (GODONE == 0){
+
+                 refDivider = ADRESH;
+
+                 GODONE = 1;
+
             }
-            displayPoints();            // display points           
+
+
+            displayDigits();    // display side digits
             displaySpace();         // display asteroids and show them on LCD display
-            updateAsteroidsSpeed(); // Poll ADC: set asteroids speed        
         }
     }
 }
