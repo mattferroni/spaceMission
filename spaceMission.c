@@ -17,6 +17,7 @@ const unsigned char map[]={63,6,91,79,102,109,125,7,127,111};
 const unsigned char cherry[]={0x2,0x4,0xe,0x15,0x11,0x11,0xe};
 const unsigned char spacecraft[]={0x0,0x10,0x1c,0x1b,0x1c,0x10,0x0};
 const unsigned char asteroid[]={0x4,0xe,0x1e,0xf,0x1e,0x1c,0x4};
+const unsigned char sad[]={0x0,0x2,0x14,0x4,0x14,0x2,0x0};
 
 #define ENDGAME 0x1
 #define COLLISION 0x2
@@ -229,6 +230,8 @@ void initCountDown(){
 
 // TODO: This function is called as soon as the mission is finisched
 void endMission(){
+    lcd_clear();
+    lcd_puts("   GameOver! \x04  ");
 	// Update LCD with the final points and a message
 }
 
@@ -251,6 +254,7 @@ int main(){
     LCD_build(1,spacecraft);
     LCD_build(2,asteroid);
     LCD_build(3,cherry);
+    LCD_build(4,sad);
 
 
     initCountDown();
@@ -268,6 +272,8 @@ int main(){
 
         if(status & ENDGAME || status & COLLISION ){
             endMission();           // End mission
+            while(1)
+                sleep();
         }else{
             displayCountDown();     // Update countdown
             displayPoints();            // display points           
