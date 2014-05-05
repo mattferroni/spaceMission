@@ -7,9 +7,11 @@ __CONFIG(0x23E2);
 #define DIVIDER 25
 
 #define LCD_RS RB4
-#define EMPTY '\x03'
+
+//Characters mapped by LCD_build
+#define EMPTY '\x20'
 #define ASTEROIDS '\x02'
-#define CHERRY 0x0
+#define CHERRY '\x03'
 #define SPACECRAFT '\x01'
 
 // 7-digit leds encoding
@@ -19,22 +21,24 @@ const unsigned char spacecraft[]={0x0,0x10,0x1c,0x1b,0x1c,0x10,0x0};
 const unsigned char asteroid[]={0x4,0xe,0x1e,0xf,0x1e,0x1c,0x4};
 const unsigned char sad[]={0x0,0x2,0x14,0x4,0x14,0x2,0x0};
 
-#define ENDGAME 0x1
-#define COLLISION 0x2
-#define POSITION 0x4
-#define UPDATE 0x8
+#define ENDGAME 0x01
+#define COLLISION 0x02
+#define POSITION 0x04
+#define UPDATE 0x08
+#define UPDATESPEED 0x10
 #define RANDOM 0x80
 
 // --- Global variables ---
 unsigned char status = 0;       //Maskbit: ENDGAME[0], COLLISION[1], POSITION[2]
 
+unsigned char refDivider = 25;
+
+unsigned char updateDivider = 0;
 unsigned char divider = 0;			// helper variable for 
 unsigned char digit0 = 0;				// first digit of the countdown
 unsigned char digit1 = 0;				// second digit of the countdown
 
 unsigned int points = 0;    //Points gained by the player.
-
-unsigned char random = 1;
 
 char line0[16]="                ";            //Display Line 0
 char line1[16]="                ";            //Display Line 1
@@ -49,17 +53,30 @@ void interrupt isr(void) {
     //disable all interrupts
 	GIE=0;
 	
-	status |= RANDOM;
-	// TODO: Button up pressed: push up the spacecraft
+     if (ADIF ==  1){
+         ADIF = 0;
+        
+         refDivider = ADRESH;
+         status |= UPDATESPEED;
 
-	// TODO: Button down: pull down the spacecraft
-	
+        GODONE = 1;
+    }
+
+
 	// Timer interrupt: decrement the count down
-	if (T0IF == 1){
+	else if (T0IF == 1){
         T0IF=0;		//reset timer interrupt
+        status |= RANDOM;
+
+        if (updateDivider==refDivider){
+            updateDivider = 0;
+            status |= UPDATE;
+        }
+        else
+            updateDivider++;
+
         if (divider==DIVIDER){
             divider=0;
-            status |= UPDATE;
 			if(digit0 == 0){
 				if(digit1 == 0){
 					// Both are zero: game finished
@@ -80,7 +97,7 @@ void interrupt isr(void) {
 
 // Helper function: wait for a while
 void sleep(){
-    for(int i = 0; i < 256; i++);
+    for(int i = 0; i < 55; i++);
 }
 
 
@@ -92,6 +109,36 @@ void updateAsteroidsSpeed(){
 }
 
 void displayCountDown(){
+    char c1,c2,c3,c4;
+    c1 = 1;
+    c2 = 0;
+    c3 = 2;
+    c4 = 4;
+
+    sleep();
+    PORTA = 0x00;
+    PORTA = ~0x08;
+    PORTD = map[c1];
+    PORTA = ~0x08;
+
+    sleep();
+    PORTA = 0x0;
+    PORTA = ~0x04;
+    PORTD = map[c2];
+    PORTA = ~0x04;
+
+    sleep();
+    PORTA = 0x0;
+    PORTA = ~0x02;
+    PORTD = map[c3];
+    PORTA = ~0x02;
+
+    sleep();
+    PORTA = 0x0;
+    PORTA = ~0x01;
+    PORTD = map[(refDivider/10) %10];
+    PORTA = ~0x01;
+
 
 }
 
@@ -240,12 +287,30 @@ void endMission(){
 int main(){
     // port settings
    INTCON = 0;
-   TRISB = 0b11000000;
-   ANSEL = 0b00000100;
-   ANSELH = 0x00;
-   
+   ANSEL = 0b00010000;
+   ANSELH = 0x0;
 
-    TRISD=0b00000000;   // PORTD used for 7-digits leds 
+   TRISA = 0b11110000;
+   TRISB = 0b11000000;
+   TRISC = 0xFF;
+   TRISD = 0b00000000;   // PORTD used for 7-digits leds 
+   TRISE = 0XFF;
+
+   PORTA = 0x0;
+
+    //ADC init
+    ADFM=0; //ADRESH stores conversion MSB 
+    //set Fosc/32 
+    ADCS1=1; ADCS0=0; 
+    //ADC reference: Vdd and GND 
+    VCFG0 = 0; VCFG1 = 0; 
+    //ADC Enable 
+    ADON = 1; 
+    //Channel selection (AN 4)
+    CHS0 = 0; CHS1 = 0; CHS2 = 1; CHS3 = 0;
+
+
+
 
 	lcd_init();
 	lcd_clear();
@@ -259,7 +324,14 @@ int main(){
 
     initCountDown();
     
+
+    PEIE = 1; //enable peripherals interrupts 
+    ADIE = 1; //enable ADC interrupt 
+    ADIF = 0; //reset flag
+
     GIE=1;      //enable all interrupts
+
+    GODONE = 1;
 
     // --- main loop ---
     while(1){
@@ -275,7 +347,21 @@ int main(){
             while(1)
                 sleep();
         }else{
-            displayCountDown();     // Update countdown
+            //Button up pressed: push up the spacecraft
+            if (RB6){
+                status &= ~POSITION;
+                checkCollision();
+            }
+
+            //Button down: pull down the spacecraft
+            if (RB7){
+                status |= POSITION;
+                checkCollision();
+            }
+            if (status & UPDATESPEED){
+                displayCountDown();     // Update countdown
+                status &= ~UPDATESPEED;
+            }
             displayPoints();            // display points           
             displaySpace();         // display asteroids and show them on LCD display
             updateAsteroidsSpeed(); // Poll ADC: set asteroids speed        
