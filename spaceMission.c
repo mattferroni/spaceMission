@@ -54,6 +54,7 @@ void interrupt isr(void) {
 	GIE=0;
 	
      if (ADIF ==  1){
+        
          ADIF = 0;
         
          refDivider = ADRESH;
@@ -97,7 +98,7 @@ void interrupt isr(void) {
 
 // Helper function: wait for a while
 void sleep(){
-    for(int i = 0; i < 55; i++);
+    for(int i = 0; i < 1255; i++);
 }
 
 
@@ -115,29 +116,25 @@ void displayCountDown(){
     c3 = 2;
     c4 = 4;
 
-    sleep();
-    PORTA = 0x00;
+    PORTD = map[(refDivider/1000) %10];
     PORTA = ~0x08;
-    PORTD = map[c1];
-    PORTA = ~0x08;
-
     sleep();
-    PORTA = 0x0;
+    PORTA = 0xFF;
+
+    PORTD = map[(refDivider/100) %10];
     PORTA = ~0x04;
-    PORTD = map[c2];
-    PORTA = ~0x04;
-
     sleep();
-    PORTA = 0x0;
-    PORTA = ~0x02;
-    PORTD = map[c3];
-    PORTA = ~0x02;
+    PORTA = 0xFF;
 
-    sleep();
-    PORTA = 0x0;
-    PORTA = ~0x01;
     PORTD = map[(refDivider/10) %10];
+    PORTA = ~0x02;
+    sleep();
+    PORTA = 0xFF;
+
+    PORTD = map[refDivider %10];
     PORTA = ~0x01;
+    sleep();
+    PORTA = 0xFF;
 
 
 }
