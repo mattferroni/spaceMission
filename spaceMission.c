@@ -1,67 +1,103 @@
+/**
+ * @file spaceMission.c
+ * @author Carminati, Ferroni, Martucci, Polino
+ * @date 9 May 2014
+ 
+ * @brief File containing implementation of spaceMission.
+ */
+
+/**
+  * @mainpage
+  * 
+  * @image html gameover.png Game Over Screen
+  * @image html screen.png Playing Screen
+  * @image html 4digits.png Points and Countdown
+  * @image html counter.png Count Down
+  * @image html points.png Points  
+
+  */
+
+
 #include <pic.h>
 #include "lcd.h"
 
-__CONFIG(0x23E2);
+__CONFIG(0x23E2);       ///< Configure PIC compiler
 
-// Using 8Mhz, we use 25 as an approximate divider
-#define DIVIDER 25
+#define DIVIDER 25      ///< Approximate divider used to trigger a timer every second on a 8Mhz processor
 
-#define LCD_RS RB4
+#define LCD_RS RB4      ///< Pin used to enable the display
 
-#define CHERRYPOINTS 10
+#define CHERRYPOINTS 10 ///< Points added when a cherry is catched by the spacecraft
 
-//Characters mapped by LCD_build
-#define EMPTY '\x20'
-#define ASTEROIDS '\x02'
-#define CHERRY '\x03'
-#define SPACECRAFT '\x01'
+/** @defgroup dis_char Display Characters
+ * Characters mapped by LCD_build, to show icons on the screen
+ *  @{
+ */
+#define EMPTY '\x20'        ///< Empty space referencecharacter
+#define ASTEROIDS '\x02'    ///< Asteroids reference 
+#define CHERRY '\x03'       ///< Cherry reference
+#define SPACECRAFT '\x01'   ///< Spacecraft reference
 
-// 7-digit leds encoding
-const unsigned char map[]={63,6,91,79,102,109,125,7,127,111};
-const unsigned char cherry[]={0x2,0x4,0xe,0x15,0x11,0x11,0xe};
-const unsigned char spacecraft[]={0x0,0x10,0x1c,0x1b,0x1c,0x10,0x0};
-const unsigned char asteroid[]={0x4,0xe,0x1e,0xf,0x1e,0x1c,0x4};
-const unsigned char sad[]={0x0,0x2,0x14,0x4,0x14,0x2,0x0};
+const unsigned char cherry[]={0x2,0x4,0xe,0x15,0x11,0x11,0xe};          ///< Empty space character implementation
+const unsigned char spacecraft[]={0x0,0x10,0x1c,0x1b,0x1c,0x10,0x0};    ///< Asteroids character implementation
+const unsigned char asteroid[]={0x4,0xe,0x1e,0xf,0x1e,0x1c,0x4};        ///< Cherry character implementation
+const unsigned char sad[]={0x0,0x2,0x14,0x4,0x14,0x2,0x0};              ///< Spacecraft character implementation
+/** @} */ // end of dis_char
 
-#define ENDGAME 0x01
-#define COLLISION 0x02
-#define POSITION 0x04
-#define UPDATE 0x08
-#define RANDOM 0x80
-
-// --- Global variables ---
-unsigned char status = 0;       //Maskbit: ENDGAME[0], COLLISION[1], POSITION[2]
-
-unsigned char c1,c2,c3,c4;      //Charachter  LED Display
-
-unsigned char refDivider = 25;
-
-unsigned char updateDivider = 0;
-unsigned char divider = 0;			// helper variable for 
-unsigned char digit0 = 0;				// first digit of the countdown
-unsigned char digit1 = 6;				// second digit of the countdown
-unsigned char countdown = 60;
-unsigned int points = 0;    //Points gained by the player.
-
-char line0[16]="                ";            //Display Line 0
-char line1[16]="                ";            //Display Line 1
-
-unsigned char indexLines;  //We can actually use two direct memory pointer to be faster
+/** @defgroup status_bits Status Bits
+ * The current status of the game is stored in a 8 bit char
+ *  @{
+ */
+ unsigned char status = 0; ///< Mask of bits to store boolean variables of status of the game.
+ 
+/**
+  * The position is here defined
+  */
+#define ENDGAME 0x01    ///< First bit: 1 if the game ended
+#define COLLISION 0x02  ///< Second bit: 1 if a collision has been detected
+#define POSITION 0x04   ///< Third bit: 1 if the spacecraft is in the lower line of the screen
+#define UPDATE 0x08     ///< Fourth bit: 1 if the screen need to be refreshed
+/** @} */ // end of status_bits
 
 
+/** @defgroup global_variable Global variables
+ * The Global variables
+ *  @{
+ */
+const unsigned char map[]={63,6,91,79,102,109,125,7,127,111}; ///< Map used to encode a 7-digits display
 
+unsigned char c1;    ///< Character 1 to be written in the LED Display of 7 bits
+unsigned char c2;    ///< Character 2 to be written in the LED Display of 7 bits
+unsigned char c3;    ///< Character 3 to be written in the LED Display of 7 bits
+unsigned char c4;    ///< Character 4 to be written in the LED Display of 7 bits
 
-// --- Interrupts handling ---
+unsigned char refDivider = 25;      ///< Set the space updating speed  
+unsigned char updateDivider = 0;    ///< Counter of timer interrupt related to #refDivider. 
+unsigned char divider = 0;          ///< Counter of timer interrupt related to #DIVIDER
+
+unsigned char countdown = 100;  ///< Countdown to the end of the game
+unsigned int points = 0;    ///< Points gained by the player
+
+char line0[16]="                ";  ///< Content of display Line 0
+char line1[16]="                ";  ///< Content of display Line 1
+
+unsigned char indexLines;  ///< Pointer of the circular buffer
+/** @} */ // end of global_variable
+
+/**
+  * @brief Interrupts handling routine
+  *
+  * This routine is used to handle timing logic.
+  * #updateDivider is incremented at every iteration until it reaches the #refDivider: the space environment is then shifted by one position.
+  * #divider is incremented at every iteration until it reaches the #DIVIDER: the countdown time is then decremented by one
+  */
 void interrupt isr(void) {
     //disable all interrupts
-	GIE=0;
-	
-
-	// Timer interrupt: decrement the count down
-    status |= RANDOM;
-
-	if (T0IF == 1){
-        T0IF=0;		//reset timer interrupt
+    GIE=0;
+    
+    // Timer interrupt: decrement the count down
+    if (T0IF == 1){
+        T0IF=0;     //reset timer interrupt
 
         if (updateDivider==refDivider){
             updateDivider = 0;
@@ -72,12 +108,12 @@ void interrupt isr(void) {
         }
         if (divider==DIVIDER){
             divider=0;
-			if(countdown == 0){
-    			status |= ENDGAME;
-				}
-			else {
-				countdown--;	// Decrement digit 0
-                c3 = (countdown/10) %10;
+            if(countdown == 0){
+                status |= ENDGAME;
+                }
+            else {
+                countdown--;                // Decrement digit 0
+                c3 = (countdown/10) % 10;
                 c4 = countdown % 10;
             }
         }
@@ -87,16 +123,22 @@ void interrupt isr(void) {
     GIE=1; //enable all interrupt
 }
 
-// Helper function: wait for a while
+/**
+  * @brief Helper function, used to wait for a small period of time
+  */
 void sleep(){
     for(int i = 0; i < 255; i++);
 }
 
+
+/**
+  * @brief Puts the digit representation of the value to be shown into the four 7-bit leds, using the #map array
+  */
 void displayDigits(){
 
     PORTD = map[c1];
     PORTA = ~0x08;
-    sleep();
+    sleep();            
     PORTA = 0xFF;
 
     PORTD = map[c2];
@@ -113,54 +155,65 @@ void displayDigits(){
     PORTA = ~0x01;
     sleep();
     PORTA = 0xFF;
-
-
 }
 
-
+/**
+  * @brief Puts the content of the space (#line0 and #line1) on the LCD display
+  */
 void displaySpace(){
     unsigned char index;
 
-	lcd_goto(0x0);
-	LCD_RS = 1;
-	for(index=0; index < 16; ++index){	
-		if(!(status & POSITION) && index == 0){
-			lcd_write(SPACECRAFT);
-		}else{
-			lcd_write(line0[(index + indexLines) % 16]);
-		}
-	}
-	lcd_goto(0x40);
-	LCD_RS = 1;
-	for(index=0; index < 16; ++index){	
-		if((status & POSITION) && index == 0){
-			lcd_write(SPACECRAFT);
-		}else{
-			lcd_write(line1[(index + indexLines) % 16]);
-		}
-	}
+    lcd_goto(0x0);      // beginning of the LCD
+    LCD_RS = 1;
+    for(index=0; index < 16; ++index){  
+        if(!(status & POSITION) && index == 0){
+            lcd_write(SPACECRAFT);
+        }else{
+            lcd_write(line0[(index + indexLines) % 16]);
+        }
+    }
+    lcd_goto(0x40);     // second line of the LCD
+    LCD_RS = 1;
+    for(index=0; index < 16; ++index){  
+        if((status & POSITION) && index == 0){
+            lcd_write(SPACECRAFT);
+        }else{
+            lcd_write(line1[(index + indexLines) % 16]);
+        }
+    }
 }
 
+/**
+  * @brief Return 1 or 0 randomly (black magic), in order to generate or not a new asteroid.
+  */
 unsigned char generateAsteroid(){
-	return (TMR0+(ADRESL >> 6) % 17)& 0x1;	
+    return (TMR0+(ADRESL >> 6) % 17)& 0x1;      // Very random. So difficult. Wow.
 }
 
+/**
+  * @brief Return 1 or 0 randomly (black magic), in order to generate or not a new cherry.
+  */
 unsigned char generateCherry(){
     if ((TMR0 % 66 == 0)){
-        return CHERRY;
+        return CHERRY;                          // Very sweet. Much fruit. Wow.
     }
     return EMPTY;    
 }
 
+/**
+  * @brief Check for a collision with an asteroid or a cherry
+  * The spacecraft collides with something if:
+  * - it's in position 1 and there's an object in line 1;
+  * - it's in position 0 and there's an object in line 0.
+  * If the collision is with a cherry, #points are incremented by #CHERRYPOINTS
+  */
 void checkCollision(){
-    // if spacecraft is up and line1[15] == asteroids, collision = 1
-    // else
-    // if spacecraft is up and line0[15] == asteroids, collision = 1
+
     if((status & POSITION) && line1[indexLines] == ASTEROIDS){
-		status |= COLLISION;
+        status |= COLLISION;
     }   
     if(!(status & POSITION) && line0[indexLines] == ASTEROIDS){
-		status |= COLLISION;
+        status |= COLLISION;
     }       
 
     if((status & POSITION) && line1[indexLines] == CHERRY){
@@ -171,16 +224,20 @@ void checkCollision(){
         points += CHERRYPOINTS;
         line1[indexLines] = EMPTY;
     }  
-
-
 }
 
 
-// TODO: This function is used to update the asteroids and LCD display
+/**
+  * @brief Update the asteroids and the score points 
+  *  
+  * This function use 2 "circular" buffers (one for each line) of 16 digits each (#line1 and #line0) 
+  * -# Increments the points when an asteroids reach the end of the line. 
+  * -# Generate a new asteroid randomly on #line0[#indexLines] if no asteroid have been 
+  * generated on #line1[prevIndex] and vice-versa to avoid impossible paths for the spacecraft.
+  * -# Generates randomly a cherry instead of an asteroids
+  * -# Check for collisions
+  */
 void updateSpace(){
-	// ASSUMPTION: Use 2 "circular" buffers (one for each line) of 16 digits each (line1 and line0)	
-	// ASSUMPTION: Use a binary value to store the position of the spacecraft (up or down)
-
     // If line1[15] contains an asteroids, points++;
     // If line0[15] contains an asteroids, points++;
     if(line0[indexLines] == ASTEROIDS || line1[indexLines] == ASTEROIDS){
@@ -189,17 +246,12 @@ void updateSpace(){
         c2 = points % 10;
     }
 
-    // Generate a new asteroid randomly on line1[0] 
-    // If no asteroid have been generated on line1[0]
-    // Generate a new asteroid randomly on line0[0]
     unsigned char prevIndex = 0;
-
     if (indexLines !=0){
         prevIndex  = indexLines-1;
-    } else {
+    }else{
         prevIndex = 15;
     }
-
     if (generateAsteroid()){
         if(line1[prevIndex] !=  ASTEROIDS){
             line0[indexLines] = ASTEROIDS;
@@ -228,26 +280,28 @@ void updateSpace(){
 
     //Check collisions
     checkCollision();
-	
-
-	// if spacecraft is up, print ">", else print = ">"
-	// Print the output on the LCD
 }
 
-
+/**
+  * @brief Initialize timer, prescaler and interrupt stuff
+  */
 void initCountDown(){
     //timer settings
-    T0CS=0;		//internal source
-    PSA=0;		//enable prescaler
-	//set prescaler
-    PS2=1;	PS1=1;	PS0=1;
+    T0CS=0;     //internal source
+    PSA=0;      //enable prescaler
+    //set prescaler
+    PS2=1;  PS1=1;  PS0=1;
     
-    T0IF=0;		//reset interrupt flag
-    T0IE=1;		//enable timer interrupt
-
-    divider=0;	//initialize divider
+    T0IF=0;     //reset interrupt flag
+    T0IE=1;     //enable timer interrupt
 }
 
+/**
+  * Compute the power with base b and exponent exp (b^exp)
+  * @param b base
+  * @param exp exponent
+  * @return b^e
+  */
 int pow(int b, int exp){
     int res = 1;
     for (int i = 0; i<exp; ++i){
@@ -255,10 +309,12 @@ int pow(int b, int exp){
     }
     return res;
 }
-// TODO: This function is called as soon as the mission is finisched
+
+/**
+  * Display a message after the end of the game. Shows points gained and a "Game Over" message.
+  */
 void endMission(){
     lcd_clear();
-//    lcd_puts("   GameOver! \x04  ");
     char pointLine[16];
     char i = 0;
     int j;
@@ -280,24 +336,34 @@ void endMission(){
     lcd_puts(pointLine);
     lcd_goto(0x40);
     lcd_puts("   GameOver! \x04  ");
-	// Update LCD with the final points and a message
+    // Update LCD with the final points and a message
 }
 
 
-// --- Main ---
+/**
+  * Main of the program.
+  * Initialize registers, clear the LCD display and initialize the countDown stuff.
+  * The main loop:
+  * -# displays asteroids and shows them on LCD display, if something changed;
+  * -# checks if countdown reached 0 or the spacecraft collided with an asteroid;
+  * -# checks if a button up has been pressed and pushes up the spacecraft;
+  * -# checks if a button down has been pressed and pushes down the spacecraft;
+  * -# polls the ADC to set asteroids speed; 
+  * -# displays side digits (points and countDown).
+  */
 int main(){
     // port settings
-   INTCON = 0;
-   ANSEL = 0b00010000;
-   ANSELH = 0x0;
+    INTCON = 0;
+    ANSEL = 0b00010000;
+    ANSELH = 0x0;
 
-   TRISA = 0b11110000;
-   TRISB = 0b11000000;
-   TRISC = 0xFF;
-   TRISD = 0b00000000;   // PORTD used for 7-digits leds 
-   TRISE = 0XFF;
+    TRISA = 0b11110000;
+    TRISB = 0b11000000;
+    TRISC = 0xFF;
+    TRISD = 0b00000000;   // PORTD used for 7-digits leds 
+    TRISE = 0XFF;
 
-   PORTA = 0x0;
+    PORTA = 0x0;
 
     //ADC init
     ADFM=0; //ADRESH stores conversion MSB 
@@ -310,34 +376,31 @@ int main(){
     //Channel selection (AN 4)
     CHS0 = 0; CHS1 = 0; CHS2 = 1; CHS3 = 0;
 
-
-
-
-	lcd_init();
-	lcd_clear();
-	lcd_puts("Welcome");
+    lcd_init();
+    lcd_clear();
+    lcd_puts("Welcome");
 
     LCD_build(1,spacecraft);
     LCD_build(2,asteroid);
     LCD_build(3,cherry);
     LCD_build(4,sad);
 
+    GODONE = 1;
 
     initCountDown();
-    
 
     GIE=1;      //enable all interrupts
 
-    GODONE = 1;
     // --- main loop ---
     while(1){
-        // Countdown reached 0 
-        // or the spacecraft collided with an asteroid
+        // Display asteroids and show them on LCD display, if something changed
         if (status & UPDATE){
             updateSpace();
             status &= ~UPDATE;
+            displaySpace();       
         }
 
+        // Countdown reached 0 or the spacecraft collided with an asteroid
         if(status & ENDGAME || status & COLLISION ){
             endMission();           // End mission
             while(1)
@@ -361,12 +424,9 @@ int main(){
                  refDivider = ADRESH;
 
                  GODONE = 1;
-
             }
 
-
-            displayDigits();    // display side digits
-            displaySpace();         // display asteroids and show them on LCD display
+            displayDigits();    // Display side digits (points and countDown)
         }
     }
 }

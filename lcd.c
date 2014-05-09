@@ -1,4 +1,5 @@
-/*
+/**
+ * @file lcd.c
  *   LCD interface example
  *   Uses routines from delay.c
  *   This code will interface to a standard LCD controller
@@ -16,7 +17,7 @@
  */
 
 #ifndef _XTAL_FREQ
- // Unless specified elsewhere, 8MHz system frequency is assumed
+ /// Unless specified elsewhere, 8MHz system frequency is assumed
  #define _XTAL_FREQ 8000000
 #endif
 
@@ -31,7 +32,7 @@
 
 #define   LCD_STROBE()   ((LCD_EN = 1),(LCD_EN=0))
 
-/* write a byte to the LCD in 4 bit mode */
+/** write a byte to the LCD in 4 bit mode */
 
 void
 lcd_write(unsigned char c)
@@ -44,7 +45,7 @@ lcd_write(unsigned char c)
    __delay_ms(5);
 }
 
-/*
+/**
  *    Clear and home the LCD
  */
 
@@ -56,7 +57,7 @@ lcd_clear(void)
    __delay_ms(5);
 }
 
-/* write a string of chars to the LCD */
+/** write a string of chars to the LCD */
 
 void
 lcd_puts(const char * s)
@@ -66,7 +67,7 @@ lcd_puts(const char * s)
       lcd_write(*s++);
 }
 
-/* write one character to the LCD */
+/** write one character to the LCD */
 
 void
 lcd_putch(char c)
@@ -76,7 +77,7 @@ lcd_putch(char c)
 }
 
 
-/*
+/**
  * Go to the specified position
  */
 
@@ -87,7 +88,7 @@ lcd_goto(unsigned char pos)
    lcd_write(0x80+pos);
 }
    
-/* initialise the LCD - put into 4 bit mode */
+/** initialise the LCD - put into 4 bit mode */
 void
 lcd_init()
 {
@@ -114,6 +115,11 @@ lcd_init()
    lcd_write(0x6); // Set entry Mode
 }
 
+/**
+  * load a custom characters
+  * @param location position of the custom character
+  * @param ptr array that drow the custom character
+  */
 void LCD_build(unsigned char location, unsigned char *ptr){
    unsigned char i;
    if(location<8){
