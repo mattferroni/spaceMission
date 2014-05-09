@@ -1,0 +1,15 @@
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.c:28: warning: Member LCD_RS (define) of file lcd.c is not documented.
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.c:29: warning: Member LCD_EN (define) of file lcd.c is not documented.
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.c:31: warning: Member LCD_DATA (define) of file lcd.c is not documented.
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.c:33: warning: Member LCD_STROBE() (define) of file lcd.c is not documented.
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.c:80: warning: parameters of member lcd_goto are not (all) documented
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.c:70: warning: parameters of member lcd_putch are not (all) documented
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.c:60: warning: parameters of member lcd_puts are not (all) documented
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.c:35: warning: parameters of member lcd_write are not (all) documented
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.h:10: warning: Member RIGA1 (define) of file lcd.h is not documented.
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.h:11: warning: Member RIGA2 (define) of file lcd.h is not documented.
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.h:39: warning: Member lcd_cursor(x) (define) of file lcd.h is not documented.
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.h:25: warning: parameters of member lcd_goto are not (all) documented
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.c:60: warning: parameters of member lcd_puts are not (all) documented
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/lcd.h:13: warning: parameters of member lcd_write are not (all) documented
+/home/matt/Dropbox/Progetto microcontrollers (Zappa)/spaceMission/spaceMission.c:343: warning: return type of member main is not documented
