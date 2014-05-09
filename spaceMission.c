@@ -11,6 +11,7 @@
   * 
   * @image html gameover.png Game Over Screen
   * @image html screen.png Playing Screen
+  * @image html cherry.png Cherry in the screen  
   * @image html 4digits.png Points and Countdown
   * @image html counter.png Count Down
   * @image html points.png Points  
@@ -99,14 +100,14 @@ void interrupt isr(void) {
     if (T0IF == 1){
         T0IF=0;     //reset timer interrupt
 
-        if (updateDivider==refDivider){
+        if (updateDivider>=refDivider){
             updateDivider = 0;
             status |= UPDATE;
         }
         else {
             updateDivider++;
         }
-        if (divider==DIVIDER){
+        if (divider>=DIVIDER){
             divider=0;
             if(countdown == 0){
                 status |= ENDGAME;
@@ -409,20 +410,20 @@ int main(){
             //Button up pressed: push up the spacecraft
             if (RB6){
                 status &= ~POSITION;
+                displaySpace();       
                 checkCollision();
             }
 
             //Button down: pull down the spacecraft
             if (RB7){
                 status |= POSITION;
+                displaySpace();       
                 checkCollision();
             }
 
             // Poll ADC: set asteroids speed  
             if (GODONE == 0){
-
                  refDivider = ADRESH;
-
                  GODONE = 1;
             }
 
