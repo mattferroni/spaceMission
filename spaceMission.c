@@ -410,15 +410,15 @@ int main(){
             //Button up pressed: push up the spacecraft
             if (RB6){
                 status &= ~POSITION;
-                displaySpace();       
                 checkCollision();
+                displaySpace();       
             }
 
             //Button down: pull down the spacecraft
             if (RB7){
                 status |= POSITION;
-                displaySpace();       
                 checkCollision();
+                displaySpace();       
             }
 
             // Poll ADC: set asteroids speed  
