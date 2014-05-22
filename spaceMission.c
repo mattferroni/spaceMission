@@ -138,50 +138,61 @@ void sleep(){
 void displayDigits(){
 
     PORTD = map[c1];
-    PORTA = ~0x08;
+    PORTA = 0x08;
     sleep();            
-    PORTA = 0xFF;
+    PORTA = ~0xFF;
 
     PORTD = map[c2];
-    PORTA = ~0x04;
+    PORTA = 0x04;
     sleep();
-    PORTA = 0xFF;
+    PORTA = ~0xFF;
 
     PORTD = map[c3];
-    PORTA = ~0x02;
+    PORTA = 0x02;
     sleep();
-    PORTA = 0xFF;
+    PORTA = ~0xFF;
 
     PORTD = map[c4];
-    PORTA = ~0x01;
+    PORTA = 0x01;
     sleep();
-    PORTA = 0xFF;
+    PORTA = ~0xFF;
 }
-
 /**
   * @brief Puts the content of the space (#line0 and #line1) on the LCD display
   */
 void displaySpace(){
     unsigned char index;
 
-    lcd_goto(0x0);      // beginning of the LCD
-    LCD_RS = 1;
     for(index=0; index < 16; ++index){  
+      lcd_goto(0x0 +index);      // beginning of the LCD
+    LCD_RS = 1;
+
         if(!(status & POSITION) && index == 0){
             lcd_write(SPACECRAFT);
         }else{
             lcd_write(line0[(index + indexLines) % 16]);
         }
-    }
-    lcd_goto(0x40);     // second line of the LCD
+    lcd_goto(0x40+index);     // second line of the LCD
     LCD_RS = 1;
-    for(index=0; index < 16; ++index){  
+
         if((status & POSITION) && index == 0){
             lcd_write(SPACECRAFT);
         }else{
             lcd_write(line1[(index + indexLines) % 16]);
         }
+
+
+        if (index%2)
+         displayDigits();    // Display side digits (points and countDown)
+
     }
+    // lcd_goto(0x40);     // second line of the LCD
+    // LCD_RS = 1;
+    // for(index=0; index < 16; ++index){  
+    //     if (index%2)
+    //      displayDigits();    // Display side digits (points and countDown)
+
+    // }
 }
 
 /**
@@ -253,6 +264,7 @@ void updateSpace(){
     }else{
         prevIndex = 15;
     }
+
     if (generateAsteroid()){
         if(line1[prevIndex] !=  ASTEROIDS){
             line0[indexLines] = ASTEROIDS;
@@ -400,13 +412,9 @@ int main(){
             status &= ~UPDATE;
             displaySpace();       
         }
-
         // Countdown reached 0 or the spacecraft collided with an asteroid
-        if(status & ENDGAME || status & COLLISION ){
-            endMission();           // End mission
-            while(1)
-                sleep();
-        }else{
+        if (!(status & ENDGAME || status & COLLISION ))
+        {
             //Button up pressed: push up the spacecraft
             if (RB6){
                 status &= ~POSITION;
@@ -426,9 +434,13 @@ int main(){
                  refDivider = ADRESH;
                  GODONE = 1;
             }
-
-            displayDigits();    // Display side digits (points and countDown)
         }
+        else{
+            endMission();           // End mission
+            while(1)
+                sleep();
+        }
+     displayDigits();    // Display side digits (points and countDown)
     }
 }
 
